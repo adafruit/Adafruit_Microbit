@@ -1,0 +1,116 @@
+#include <Adafruit_Microbit.h>
+
+#define MATRIX_ROWS 3
+#define MATRIX_COLS 9
+uint32_t rowpins[MATRIX_ROWS] = {26, 27, 28};
+uint32_t colpins[MATRIX_COLS] = {3, 4, 10, 23, 24, 25, 9, 7, 6};
+
+volatile uint8_t currentRow = 0;
+
+Adafruit_Microbit *handle = NULL;
+
+Adafruit_Microbit::Adafruit_Microbit() :  Adafruit_GFX(5,5) {
+  memset(matrix_buffer, 0x0, MATRIX_COLS * MATRIX_ROWS);
+}
+
+Adafruit_Microbit::~Adafruit_Microbit(void) {}
+
+boolean Adafruit_Microbit::begin(void) {
+  handle = this;
+
+  for (uint8_t c=0; c<MATRIX_COLS ; c++) {
+    pinMode(colpins[c], OUTPUT);
+    digitalWrite(colpins[c], HIGH);
+  }
+
+
+  for (uint8_t r=0; r<MATRIX_ROWS ; r++) {
+    pinMode(rowpins[r], OUTPUT);
+    digitalWrite(rowpins[r], LOW);
+  }
+  // return true;
+
+  for (uint8_t r=0; r<MATRIX_ROWS; r++) {
+    for (uint8_t c=0; c<MATRIX_COLS; c++) {
+      Serial.print("("); Serial.print(r); Serial.print(", "); 
+      Serial.print(c); Serial.println(")");
+       matrix_buffer[r][c] = 0;
+    }
+  }
+
+  currentRow = 0;
+
+  return true;
+}
+
+// Matrix object function called by IRQ handler for each row
+void Adafruit_Microbit::rowHandler(void) {
+  // disable current row
+  digitalWrite(rowpins[currentRow], LOW);
+  for (uint8_t c=0; c<MATRIX_COLS; c++) {
+    digitalWrite(colpins[c], HIGH);
+  }
+
+  // go to next row
+  if(++currentRow >= MATRIX_ROWS) {
+    currentRow = 0;
+  }
+
+  for (uint8_t c=0; c<MATRIX_COLS; c++) {
+    if (matrix_buffer[currentRow][c]) {
+      digitalWrite(colpins[c], LOW);    // Change column states for new row
+    }
+  }
+  digitalWrite(rowpins[currentRow], HIGH);
+}
+
+void IRQ_HANDLER(void) {
+  handle->rowHandler();
+  //TIMER->COUNT16.INTFLAG.reg = TC_INTFLAG_OVF; // Clear overflow interrupt
+}
+
+void Adafruit_Microbit::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if((x < 0) || (y < 0) || (x >= _width) || (y >= _height)) return;
+
+  int16_t t;
+  switch(rotation) {
+   case 1:
+    t = x;
+    x = WIDTH  - 1 - y;
+    y = t;
+    break;
+   case 2:
+    x = WIDTH  - 1 - x;
+    y = HEIGHT - 1 - y;
+    break;
+   case 3:
+    t = x;
+    x = y;
+    y = HEIGHT - 1 - t;
+    break;
+  }
+
+  //if(color) row[y].buffer[1 - frontBuffer] |=  colMask[x];
+  //else      row[y].buffer[1 - frontBuffer] &= ~colMask[x];
+}
+
+void Adafruit_Microbit::fillScreen(uint16_t color) {
+  /*
+  uint32_t bitmask = color ? allColMask : 0;
+  for(uint8_t i=0; i<HEIGHT; i++) {
+    row[i].buffer[1 - frontBuffer] = bitmask;
+  }
+  */
+}
+
+void Adafruit_Microbit::show(void) {
+  /*
+  // Set swapflag and wait for interrupt to clear it
+  for(swapFlag = true; swapFlag; );
+
+  // Copy front buffer to back buffer
+  for(uint8_t i=0; i<HEIGHT; i++) {
+    row[i].buffer[1 - frontBuffer] = row[i].buffer[frontBuffer];
+  }
+  */
+}
