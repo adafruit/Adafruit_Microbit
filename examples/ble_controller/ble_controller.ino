@@ -1,11 +1,12 @@
-// Copyright (c) Sandeep Mistry. All rights reserved.
+// Example for using Adafruit Bluefruit App to send/receive controller data
+
+// BLE Serial code Copyright (c) Sandeep Mistry. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
-#include <BLEPeripheral.h>
-#include "BLESerial.h"
+#include <Adafruit_Microbit.h>
+
+Adafruit_Microbit microbit;
 
 
 // function prototypes over in packetparser.cpp
@@ -17,18 +18,17 @@ extern uint8_t packetbuffer[];
 
 #define BLE_READPACKET_TIMEOUT 1000
 
-// Our BLE connection
-BLESerial bleSerial;
-
-
 void setup() {
   Serial.begin(115200);
 
   Serial.println("Controller demo ready!");
 
   // custom services and characteristics can be added as well
-  bleSerial.setLocalName("microbit");
-  bleSerial.begin();
+  microbit.BTLESerial.begin();
+  microbit.BTLESerial.setLocalName("microbit");
+
+  // Start LED matrix driver after radio (required)
+  microbit.begin();
 }
 
 /**************************************************************************/
@@ -39,7 +39,7 @@ void setup() {
 void loop(void)
 {
   /* Wait for new data to arrive */
-  uint8_t len = readPacket(&bleSerial, BLE_READPACKET_TIMEOUT);
+  uint8_t len = readPacket(&(microbit.BTLESerial), BLE_READPACKET_TIMEOUT);
   if (len == 0) return;
 
   /* Got a packet! */

@@ -1,4 +1,6 @@
-// Copyright (c) Sandeep Mistry. All rights reserved.
+// Example for using Adafruit Bluefruit App to plot accelerometer data
+
+// BLE Serial code Copyright (c) Sandeep Mistry. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <Adafruit_Microbit.h>
@@ -20,6 +22,7 @@ void setup() {
   microbit.BTLESerial.begin();
   microbit.BTLESerial.setLocalName("microbit");
 
+  // Start LED matrix driver after radio (required)
   microbit.begin();
 }
 

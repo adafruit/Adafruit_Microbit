@@ -27,6 +27,7 @@ void setup() {
   microbit.BTLESerial.begin();
   microbit.BTLESerial.setLocalName("microbit");
 
+  // Start LED matrix driver after radio (required)
   microbit.begin();
 }
 
