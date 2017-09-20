@@ -1,8 +1,10 @@
+// This is a 'low level' demo showing how to use timer 2 (the only available timer really)
+// to blink an LED. This code turned into the matrix handler, so you cant use it and the 
+// Adafruit_Microbit library at the same time but maybe its useful!
+
 const int COL1 = 3;     // Column #1 control
 const int LED = 26;     // 'row 1' led
 
-
-void RTC1_IRQHandler(void) {digitalWrite(1, LOW);}
 
 void start_timer(void)
 {    

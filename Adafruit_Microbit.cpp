@@ -1,4 +1,5 @@
 #include <Adafruit_Microbit.h>
+#include "nrf_soc.h"
 
 #define MATRIX_ROWS 3
 #define MATRIX_COLS 9
@@ -19,7 +20,7 @@ uint8_t pixel_to_col[25] = {1, 4, 2, 5, 3,
 
 volatile uint8_t currentRow = 0;
 
-Adafruit_Microbit *handle = NULL;
+Adafruit_Microbit_Matrix *handle = NULL;
 
 /** TIMTER2 peripheral interrupt handler. This interrupt handler is called whenever there it a TIMER2 interrupt
  * Don't mess with this line. really.
@@ -28,13 +29,13 @@ Adafruit_Microbit *handle = NULL;
 
 
 
-Adafruit_Microbit::Adafruit_Microbit() :  Adafruit_GFX(5,5) {
+Adafruit_Microbit_Matrix::Adafruit_Microbit_Matrix() :  Adafruit_GFX(5,5) {
   memset(matrix_buffer, 0x0, MATRIX_COLS * MATRIX_ROWS);
 }
 
-Adafruit_Microbit::~Adafruit_Microbit(void) {}
+Adafruit_Microbit_Matrix::~Adafruit_Microbit_Matrix(void) {}
 
-boolean Adafruit_Microbit::begin(void) {
+boolean Adafruit_Microbit_Matrix::begin(void) {
   handle = this;
 
   for (uint8_t c=0; c<MATRIX_COLS ; c++) {
@@ -63,7 +64,7 @@ boolean Adafruit_Microbit::begin(void) {
 
 // Matrix object function called by IRQ handler for each row
 // This is not optimized at all but its not so bad either!
-void Adafruit_Microbit::rowHandler(void) {
+void Adafruit_Microbit_Matrix::rowHandler(void) {
   // disable current row
   digitalWrite(rowpins[currentRow], LOW);
   for (uint8_t c=0; c<MATRIX_COLS; c++) {
@@ -87,7 +88,7 @@ void Adafruit_Microbit::rowHandler(void) {
 
 
 // This sets up the IRQ for timer 2 to run the matrix refresh.
-void Adafruit_Microbit::startTimer(void)
+void Adafruit_Microbit_Matrix::startTimer(void)
 {    
   NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer;              // Set the timer in Counter Mode
   NRF_TIMER2->TASKS_CLEAR = 1;                           // clear the task first to be usable for later
@@ -113,7 +114,7 @@ void IRQ_MATRIX_HANDLER(void) {
   }
 }
 
-void Adafruit_Microbit::drawPixel(int16_t x, int16_t y, uint16_t color) {
+void Adafruit_Microbit_Matrix::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if((x < 0) || (y < 0) || (x >= _width) || (y >= _height)) return;
 
   int16_t t;
@@ -146,11 +147,11 @@ void Adafruit_Microbit::drawPixel(int16_t x, int16_t y, uint16_t color) {
     matrix_buffer[row][col] = 0;
 }
 
-void Adafruit_Microbit::clear(void) {
+void Adafruit_Microbit_Matrix::clear(void) {
   fillScreen(0);
 }
 
-void Adafruit_Microbit::fillScreen(uint16_t color) {
+void Adafruit_Microbit_Matrix::fillScreen(uint16_t color) {
   for (uint8_t r=0; r<MATRIX_ROWS; r++) {
     for (uint8_t c=0; c<MATRIX_COLS; c++) {
        matrix_buffer[r][c] = color;
@@ -158,3 +159,156 @@ void Adafruit_Microbit::fillScreen(uint16_t color) {
   }
 }
 
+/*************************************************************************************************/
+
+void Adafruit_Microbit::begin(void) {
+  matrix.begin();
+}
+
+uint8_t Adafruit_Microbit::getDieTemp(void) {
+    int32_t temp = 0;
+    uint32_t err_code;
+    
+    err_code = sd_temp_get(&temp);
+    if (err_code)
+    {
+      Serial.print("Temperature Error Code: 0x");
+      Serial.print(err_code, HEX);
+      Serial.println("");
+      return 0;
+    }
+    
+    return temp / 4;
+}
+
+/*************************************************************************************************/
+
+Adafruit_Microbit_BLESerial* Adafruit_Microbit_BLESerial::_instance = NULL;
+
+Adafruit_Microbit_BLESerial::Adafruit_Microbit_BLESerial(unsigned char req, unsigned char rdy, unsigned char rst) :
+  BLEPeripheral(req, rdy, rst)
+{
+  this->_txCount = 0;
+  this->_rxHead = this->_rxTail = 0;
+  this->_flushed = 0;
+  Adafruit_Microbit_BLESerial::_instance = this;
+
+  addAttribute(this->_uartService);
+  addAttribute(this->_uartNameDescriptor);
+  setAdvertisedServiceUuid(this->_uartService.uuid());
+  addAttribute(this->_rxCharacteristic);
+  addAttribute(this->_rxNameDescriptor);
+  this->_rxCharacteristic.setEventHandler(BLEWritten, Adafruit_Microbit_BLESerial::_received);
+  addAttribute(this->_txCharacteristic);
+  addAttribute(this->_txNameDescriptor);
+}
+
+void Adafruit_Microbit_BLESerial::begin(...) {
+  BLEPeripheral::begin();
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.println(F("Adafruit_Microbit_BLESerial::begin()"));
+  #endif
+}
+
+void Adafruit_Microbit_BLESerial::poll() {
+  if (millis() < this->_flushed + 100) {
+    BLEPeripheral::poll();
+  } else {
+    flush();
+  }
+}
+
+void Adafruit_Microbit_BLESerial::end() {
+  this->_rxCharacteristic.setEventHandler(BLEWritten, NULL);
+  this->_rxHead = this->_rxTail = 0;
+  flush();
+  BLEPeripheral::disconnect();
+}
+
+int Adafruit_Microbit_BLESerial::available(void) {
+  BLEPeripheral::poll();
+  int retval = (this->_rxHead - this->_rxTail + sizeof(this->_rxBuffer)) % sizeof(this->_rxBuffer);
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::available() = "));
+    Serial.println(retval);
+  #endif
+  return retval;
+}
+
+int Adafruit_Microbit_BLESerial::peek(void) {
+  BLEPeripheral::poll();
+  if (this->_rxTail == this->_rxHead) return -1;
+  uint8_t byte = this->_rxBuffer[ (this->_rxTail + 1) % sizeof(this->_rxBuffer)];
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::peek() = "));
+    Serial.print((char) byte);
+    Serial.print(F(" 0x"));
+    Serial.println(byte, HEX);
+  #endif
+  return byte;
+}
+
+int Adafruit_Microbit_BLESerial::read(void) {
+  BLEPeripheral::poll();
+  if (this->_rxTail == this->_rxHead) return -1;
+  this->_rxTail = (this->_rxTail + 1) % sizeof(this->_rxBuffer);
+  uint8_t byte = this->_rxBuffer[this->_rxTail];
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::read() = "));
+    Serial.print((char) byte);
+    Serial.print(F(" 0x"));
+    Serial.println(byte, HEX);
+  #endif
+  return byte;
+}
+
+void Adafruit_Microbit_BLESerial::flush(void) {
+  if (this->_txCount == 0) return;
+  this->_txCharacteristic.setValue(this->_txBuffer, this->_txCount);
+  this->_flushed = millis();
+  this->_txCount = 0;
+  BLEPeripheral::poll();
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.println(F("Adafruit_Microbit_BLESerial::flush()"));
+  #endif
+}
+
+size_t Adafruit_Microbit_BLESerial::write(uint8_t byte) {
+  BLEPeripheral::poll();
+  if (this->_txCharacteristic.subscribed() == false) return 0;
+  this->_txBuffer[this->_txCount++] = byte;
+  if (this->_txCount == sizeof(this->_txBuffer)) flush();
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::write("));
+    Serial.print((char) byte);
+    Serial.print(F(" 0x"));
+    Serial.print(byte, HEX);
+    Serial.println(F(") = 1"));
+  #endif
+  return 1;
+}
+
+Adafruit_Microbit_BLESerial::operator bool() {
+  bool retval = BLEPeripheral::connected();
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::operator bool() = "));
+    Serial.println(retval);
+  #endif
+  return retval;
+}
+
+void Adafruit_Microbit_BLESerial::_received(const uint8_t* data, size_t size) {
+  for (int i = 0; i < size; i++) {
+    this->_rxHead = (this->_rxHead + 1) % sizeof(this->_rxBuffer);
+    this->_rxBuffer[this->_rxHead] = data[i];
+  }
+  #ifdef BLE_SERIAL_DEBUG
+    Serial.print(F("Adafruit_Microbit_BLESerial::received("));
+    for (int i = 0; i < size; i++) Serial.print((char) data[i]);
+    Serial.println(F(")"));
+  #endif
+}
+
+void Adafruit_Microbit_BLESerial::_received(BLECentral& /*central*/, BLECharacteristic& rxCharacteristic) {
+  Adafruit_Microbit_BLESerial::_instance->_received(rxCharacteristic.value(), rxCharacteristic.valueLength());
+}

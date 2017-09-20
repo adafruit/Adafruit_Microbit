@@ -1,10 +1,10 @@
-// Copyright (c) Sandeep Mistry. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 /*
  * Serial Port over BLE
  * Create UART service compatible with Nordic's *nRF Toolbox* and Adafruit's *Bluefruit LE* iOS/Android apps.
  *
+ * Copyright (c) Sandeep Mistry. All rights reserved.
+ * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  * BLESerial class implements same protocols as Arduino's built-in Serial class and can be used as it's wireless
  * replacement. Data transfers are routed through a BLE service with TX and RX characteristics. To make the
  * service discoverable all UUIDs are NUS (Nordic UART Service) compatible.
@@ -14,13 +14,9 @@
  * strengths everything works well.
  */
 
+#include <Adafruit_Microbit.h>
 
-#include <BLEPeripheral.h>
-#include "BLESerial.h"
-
-// our serial device
-BLESerial bleSerial;
-
+Adafruit_Microbit microbit;
 
 void setup() {
   Serial.begin(115200);
@@ -28,25 +24,27 @@ void setup() {
   Serial.println("Microbit ready!");
   
   // custom services and characteristics can be added as well
-  bleSerial.setLocalName("microbit");
-  bleSerial.begin();
+  microbit.BTLESerial.begin();
+  microbit.BTLESerial.setLocalName("microbit");
+
+  microbit.begin();
 }
 
 void loop() {
-  bleSerial.poll();
+  microbit.BTLESerial.poll();
 
   forward();
   //loopback();
-  //spam();
+  spam();
 }
 
 
-// forward received from Serial to BLESerial and vice versa
+// forward received from Serial to microbit.BTLESerial and vice versa
 void forward() {
-  if (bleSerial && Serial) {
+  if (microbit.BTLESerial && Serial) {
     int byte;
-    if (bleSerial.available()) {
-      Serial.write(bleSerial.read());
+    if (microbit.BTLESerial.available()) {
+      Serial.write(microbit.BTLESerial.read());
     }
     char buffer[10];
     memset(buffer, 0x0, 10);
@@ -57,7 +55,7 @@ void forward() {
        idx++;
     }
     if (idx) {
-      bleSerial.write(buffer, idx);
+      microbit.BTLESerial.write(buffer, idx);
     }
   }
   delay(1);
@@ -65,17 +63,19 @@ void forward() {
 
 // echo all received data back
 void loopback() {
-  if (bleSerial) {
+  if (microbit.BTLESerial) {
     int byte;
-    while ((byte = bleSerial.read()) > 0) bleSerial.write(byte);
+    while ((byte = microbit.BTLESerial.read()) > 0) {
+        microbit.BTLESerial.write(byte);
+    }
   }
 }
 
 // periodically sent time stamps
 void spam() {
-  if (bleSerial) {
-    bleSerial.print(millis());
-    bleSerial.println(" tick-tacks!");
+  if (microbit.BTLESerial) {
+    microbit.BTLESerial.print(millis());
+    microbit.BTLESerial.println(" tick-tacks!");
     delay(1000);
   }
 }
