@@ -6,7 +6,7 @@
 #include <Adafruit_Microbit.h>
 #include <Fonts/TomThumb.h>
 
-Adafruit_Microbit microbit;
+Adafruit_Microbit_Matrix microbit;
 
 const uint8_t PROGMEM
   smile_bmp[] =
