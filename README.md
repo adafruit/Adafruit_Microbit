@@ -8,3 +8,4 @@ Included:
   * Adafruit_GFX compatible LED Matrix driver on Timer 2
   * Internal die temperature read (but its not very good)
 
+Check out the detailed guide here: https://learn.adafruit.com/use-micro-bit-with-arduino
