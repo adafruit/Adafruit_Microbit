@@ -4,7 +4,7 @@
 #include <Adafruit_GFX.h>
 #include <Arduino.h>
 #include <BLEPeripheral.h>
-
+#include <Fonts/TomThumb.h>
 
 #define LED_ON   1
 #define LED_OFF  0
@@ -21,7 +21,14 @@ class Adafruit_Microbit_Matrix : public Adafruit_GFX {
             fillScreen(uint16_t color),
             clear(void),
             rowHandler(void);
+  void      show(const uint8_t bitmap[]);
+  void      scrollText(char *string, uint8_t stepdelay = 150);
+  void      print(char *string);
+  void      print(int32_t i);
+  void      print(int i)          { print((int32_t)i); }
+  void      print(double f, int precision = 3);
 
+  static const uint8_t EMPTYHEART[5],  HEART[5], NO[5], YES[5];
  private:
   void startTimer();
 

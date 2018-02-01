@@ -1,3 +1,33 @@
+
+
+/**
+ *  Includes ftoa() code from stm32tpl --  STM32 C++ Template Peripheral Library
+ *
+ *  Copyright (c) 2009-2014 Anton B. Gusev aka AHTOXA
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ *
+ *
+ */
+
+
+
 #include <Adafruit_Microbit.h>
 #include "nrf_soc.h"
 
@@ -159,6 +189,153 @@ void Adafruit_Microbit_Matrix::fillScreen(uint16_t color) {
   }
 }
 
+void Adafruit_Microbit_Matrix::show(const uint8_t bitmap[]) {
+  clear();
+  drawBitmap(-3, 0, bitmap, 8, 5, LED_ON);
+}
+
+void Adafruit_Microbit_Matrix::print(char *string) {
+  setFont(&TomThumb);
+  setTextWrap(false);
+  setTextColor(LED_ON);
+
+  if (strlen(string) > 1) {
+    scrollText(string);
+  } else {
+    clear();
+    setCursor(0, 5);
+    Adafruit_GFX::print(string);
+  }
+}
+
+void Adafruit_Microbit_Matrix::print(int32_t i) {
+  char buffer[34];
+  memset(buffer, 0, 34);
+
+  itoa(i, buffer, 10);
+  print(buffer);
+}
+
+
+
+#define MAX_PRECISION	(10)
+static const double rounders[MAX_PRECISION + 1] =
+{
+	0.5,				// 0
+	0.05,				// 1
+	0.005,				// 2
+	0.0005,				// 3
+	0.00005,			// 4
+	0.000005,			// 5
+	0.0000005,			// 6
+	0.00000005,			// 7
+	0.000000005,		// 8
+	0.0000000005,		// 9
+	0.00000000005		// 10
+};
+
+void Adafruit_Microbit_Matrix::print(double f, int precision) {
+  char buf[80];
+
+  char * ptr = buf;
+  char * p = ptr;
+  char * p1;
+  char c;
+  long intPart;
+
+  // check precision bounds
+  if (precision > MAX_PRECISION)
+    precision = MAX_PRECISION;
+  
+  // sign stuff
+  if (f < 0) {
+    f = -f;
+    *ptr++ = '-';
+  }
+
+  if (precision < 0) {  // negative precision == automatic precision guess
+    if (f < 1.0) precision = 6;
+    else if (f < 10.0) precision = 5;
+    else if (f < 100.0) precision = 4;
+    else if (f < 1000.0) precision = 3;
+    else if (f < 10000.0) precision = 2;
+    else if (f < 100000.0) precision = 1;
+    else precision = 0;
+  }
+  
+  // round value according the precision
+  if (precision)
+    f += rounders[precision];
+  
+  // integer part...
+  intPart = f;
+  f -= intPart;
+
+  if (!intPart)
+    *ptr++ = '0';
+  else {
+    // save start pointer
+    p = ptr;
+    
+    // convert (reverse order)
+    while (intPart) {
+      *p++ = '0' + intPart % 10;
+      intPart /= 10;
+    }
+    
+    // save end pos
+    p1 = p;
+    
+    // reverse result
+    while (p > ptr) {
+      c = *--p;
+      *p = *ptr;
+      *ptr++ = c;
+    }
+    // restore end pos
+    ptr = p1;
+  }
+  
+  // decimal part
+  if (precision) {
+    // place decimal point
+    *ptr++ = '.';
+    
+    // convert
+    while (precision--) {
+	f *= 10.0;
+	c = f;
+	*ptr++ = '0' + c;
+	f -= c;
+      }
+  }
+  
+  // terminating zero
+  *ptr = 0;
+  
+  Serial.println(buf);
+  print(buf);
+}
+
+
+
+
+
+
+void Adafruit_Microbit_Matrix::scrollText(char *string, uint8_t stepdelay) {
+  setFont(&TomThumb);
+  setTextWrap(false);
+  setTextColor(LED_ON);
+
+  for (int i = 5; i > (((int16_t)strlen(string)-1) * -5) ; i--) {
+    setCursor(i, 5);
+    clear();
+    Adafruit_GFX::print(string);
+    delay(stepdelay);
+  }
+
+}
+
 /*************************************************************************************************/
 
 void Adafruit_Microbit::begin(void) {
@@ -312,3 +489,36 @@ void Adafruit_Microbit_BLESerial::_received(const uint8_t* data, size_t size) {
 void Adafruit_Microbit_BLESerial::_received(BLECentral& /*central*/, BLECharacteristic& rxCharacteristic) {
   Adafruit_Microbit_BLESerial::_instance->_received(rxCharacteristic.value(), rxCharacteristic.valueLength());
 }
+
+
+/*************************************************************************************************/
+
+const uint8_t MICROBIT_SMILE[5] =   { B00000000, B01010000, B00000000, B10001000, B01110000 };
+
+const uint8_t Adafruit_Microbit_Matrix::EMPTYHEART[5] = 
+  { B01010,
+    B10101,
+    B10001,
+    B01010,
+    B00100, };
+
+const uint8_t Adafruit_Microbit_Matrix::HEART[5] = 
+  { B01010,
+    B11111,
+    B11111,
+    B01110,
+    B00100, };
+
+const uint8_t Adafruit_Microbit_Matrix::NO[5] = 
+  { B10001,
+    B01010,
+    B00100,
+    B01010,
+    B10001, };
+
+const uint8_t Adafruit_Microbit_Matrix::YES[5] = 
+  { B00000,
+    B00001,
+    B00010,
+    B10100,
+    B01000, };

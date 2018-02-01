@@ -4,17 +4,16 @@
 // https://learn.adafruit.com/adafruit-gfx-graphics-library
 
 #include <Adafruit_Microbit.h>
-#include <Fonts/TomThumb.h>
 
 Adafruit_Microbit_Matrix microbit;
 
-const uint8_t PROGMEM
+const uint8_t
   smile_bmp[] =
-  { B00000000,
-    B01010000,
-    B00000000,
-    B10001000,
-    B01110000, };
+  { B00000,
+    B01010,
+    B00000,
+    B10001,
+    B01110, };
     
 void setup() {  
   Serial.begin(9600);
@@ -22,11 +21,6 @@ void setup() {
   Serial.println("microbit matrix demo is ready!");
 
   microbit.begin();
-
-  // setup font for later!
-  microbit.setFont(&TomThumb);
-  microbit.setTextWrap(false);
-  microbit.setTextColor(LED_ON);
 }
     
 void loop(){
@@ -34,9 +28,20 @@ void loop(){
   microbit.fillScreen(LED_ON);
   delay(1000);
 
-  // draw a face
-  microbit.clear();
-  microbit.drawBitmap(0, 0, smile_bmp, 8, 5, LED_ON);
+  // draw a heart
+  microbit.show(microbit.HEART);
+  delay(1000);
+
+  // draw a no cross
+  microbit.show(microbit.NO);
+  delay(1000);
+
+  // draw a yes check
+  microbit.show(microbit.YES);
+  delay(1000);
+
+  // draw a custom made bitmap face
+  microbit.show(smile_bmp);
   delay(1000);
   
   microbit.clear();
@@ -69,12 +74,15 @@ void loop(){
 
   delay(1000);
 
-  // scroll some text
-  String myMessage = "HELLO WORLD";
-  for (int i = 5; i > (((int)myMessage.length()-1) * -5) ; i--) {
-    microbit.setCursor(i, 5);
-    microbit.clear();
-    microbit.print(myMessage);
-    delay(150);
+  // scroll some text the 'easy' way
+  microbit.print("HELLO WORLD");
+
+  // count up!
+  for (int i=0; i<10; i++) {
+    microbit.print(i);
+    delay(500);
   }
+
+  microbit.print(3.1415, 4);  // pi time, 4 digits of precision!!
+
 }
