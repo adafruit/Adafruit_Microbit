@@ -57,6 +57,10 @@ Adafruit_Microbit_Matrix::Adafruit_Microbit_Matrix() : Adafruit_GFX(5, 5) {
 
 Adafruit_Microbit_Matrix::~Adafruit_Microbit_Matrix(void) {}
 
+/*!
+ *    @brief Initialized the 5x5 matrix and scanning IRQ
+ *    @returns True
+ */
 boolean Adafruit_Microbit_Matrix::begin(void) {
   handle = this;
 
@@ -83,8 +87,10 @@ boolean Adafruit_Microbit_Matrix::begin(void) {
   return true;
 }
 
-// Matrix object function called by IRQ handler for each row
-// This is not optimized at all but its not so bad either!
+/*!
+ *    @brief Matrix object function called by IRQ handler for each row
+ *    This is not optimized at all but its not so bad either!
+ */
 void Adafruit_Microbit_Matrix::rowHandler(void) {
   // disable current row
   digitalWrite(rowpins[currentRow], LOW);
@@ -107,7 +113,9 @@ void Adafruit_Microbit_Matrix::rowHandler(void) {
   digitalWrite(rowpins[currentRow], HIGH);
 }
 
-// This sets up the IRQ for timer 2 to run the matrix refresh.
+/*!
+ *    @brief Sets up the IRQ for timer 2 to run the matrix refresh.
+ */
 void Adafruit_Microbit_Matrix::startTimer(void) {
   NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer; // Set the timer in Counter Mode
   NRF_TIMER2->TASKS_CLEAR = 1; // clear the task first to be usable for later
@@ -134,6 +142,12 @@ void IRQ_MATRIX_HANDLER(void) {
   }
 }
 
+/*!
+ *    @brief  Draw a single pixel/LED on the 5x5 matrix
+ *    @param  x 0 to 4 column
+ *    @param  y 0 to 4 row
+ *    @param  color 1 for LEDs on, 0 for off
+ */
 void Adafruit_Microbit_Matrix::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x < 0) || (y < 0) || (x >= _width) || (y >= _height))
     return;
@@ -169,8 +183,15 @@ void Adafruit_Microbit_Matrix::drawPixel(int16_t x, int16_t y, uint16_t color) {
     matrix_buffer[row][col] = 0;
 }
 
+/*!
+ *    @brief  Clear the 5x5 matrix
+ */
 void Adafruit_Microbit_Matrix::clear(void) { fillScreen(0); }
 
+/*!
+ *    @brief  Fill the 5x5 matrix with an LED 'color'
+ *    @param  color 1 for LEDs on, 0 for off
+ */
 void Adafruit_Microbit_Matrix::fillScreen(uint16_t color) {
   for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
     for (uint8_t c = 0; c < MATRIX_COLS; c++) {
@@ -179,11 +200,19 @@ void Adafruit_Microbit_Matrix::fillScreen(uint16_t color) {
   }
 }
 
+/*!
+ *    @brief  Display a 5-byte bitmap on the 5x5 LED matrix
+ *    @param  bitmap 5 byte bitmap
+ */
 void Adafruit_Microbit_Matrix::show(const uint8_t bitmap[]) {
   clear();
   drawBitmap(-3, 0, bitmap, 8, 5, LED_ON);
 }
 
+/*!
+ *    @brief  Display a string on the 5x5 LED matrix
+ *    @param  string Null-terminated ascii string
+ */
 void Adafruit_Microbit_Matrix::print(char *string) {
   setFont(&TomThumb);
   setTextWrap(false);
@@ -198,6 +227,10 @@ void Adafruit_Microbit_Matrix::print(char *string) {
   }
 }
 
+/*!
+ *    @brief  Display a signed number on the 5x5 LED matrix
+ *    @param  i The value
+ */
 void Adafruit_Microbit_Matrix::print(int32_t i) {
   char buffer[34];
   memset(buffer, 0, 34);
@@ -205,6 +238,12 @@ void Adafruit_Microbit_Matrix::print(int32_t i) {
   itoa(i, buffer, 10);
   print(buffer);
 }
+
+/*!
+ *    @brief  Display a signed number on the 5x5 LED matrix
+ *    @param  i The value
+ */
+void Adafruit_Microbit_Matrix::print(int i) { print((int32_t)i); }
 
 #define MAX_PRECISION (10)
 static const double rounders[MAX_PRECISION + 1] = {
@@ -221,6 +260,11 @@ static const double rounders[MAX_PRECISION + 1] = {
     0.00000000005 // 10
 };
 
+/*!
+ *    @brief  Display a floating point number on the 5x5 LED matrix
+ *    @param  f The floating point value
+ *    @param  precision Digits after decimal
+ */
 void Adafruit_Microbit_Matrix::print(double f, int precision) {
   char buf[80];
 
@@ -311,6 +355,11 @@ void Adafruit_Microbit_Matrix::print(double f, int precision) {
   print(buf);
 }
 
+/*!
+ *    @brief  Scroll display a string on the 5x5 LED matrix
+ *    @param  string Null-terminated ascii string
+ *    @param  stepdelay Milliseconds per scroll step
+ */
 void Adafruit_Microbit_Matrix::scrollText(char *string, uint8_t stepdelay) {
   setFont(&TomThumb);
   setTextWrap(false);
@@ -324,10 +373,17 @@ void Adafruit_Microbit_Matrix::scrollText(char *string, uint8_t stepdelay) {
   }
 }
 
-/*************************************************************************************************/
+/*****************************************************************/
 
+/*!
+ *    @brief  Initializes the LED matrix
+ */
 void Adafruit_Microbit::begin(void) { matrix.begin(); }
 
+/*!
+ *    @brief  Request the temperature from the Soft Device
+ *    @returns Temperature in Celsius
+ */
 uint8_t Adafruit_Microbit::getDieTemp(void) {
   int32_t temp = 0;
   uint32_t err_code;
@@ -343,10 +399,16 @@ uint8_t Adafruit_Microbit::getDieTemp(void) {
   return temp / 4;
 }
 
-/*************************************************************************************************/
+/*********************************************************************/
 
 Adafruit_Microbit_BLESerial *Adafruit_Microbit_BLESerial::_instance = NULL;
 
+/*!
+ *    @brief  Create a Nordic UART service interface
+ *    @param  req Unused
+ *    @param  rdy Unused
+ *    @param  rst Unused
+ */
 Adafruit_Microbit_BLESerial::Adafruit_Microbit_BLESerial(unsigned char req,
                                                          unsigned char rdy,
                                                          unsigned char rst)
@@ -367,6 +429,9 @@ Adafruit_Microbit_BLESerial::Adafruit_Microbit_BLESerial(unsigned char req,
   addAttribute(this->_txNameDescriptor);
 }
 
+/*!
+ *    @brief  Initialize Nordic UART service interface
+ */
 void Adafruit_Microbit_BLESerial::begin(...) {
   BLEPeripheral::begin();
 #ifdef BLE_SERIAL_DEBUG
@@ -374,6 +439,9 @@ void Adafruit_Microbit_BLESerial::begin(...) {
 #endif
 }
 
+/*!
+ *    @brief Check/flush the UART service pipe
+ */
 void Adafruit_Microbit_BLESerial::poll() {
   if (millis() < this->_flushed + 100) {
     BLEPeripheral::poll();
@@ -382,6 +450,9 @@ void Adafruit_Microbit_BLESerial::poll() {
   }
 }
 
+/*!
+ *    @brief Send any pending data and close BLE connection
+ */
 void Adafruit_Microbit_BLESerial::end() {
   this->_rxCharacteristic.setEventHandler(BLEWritten, NULL);
   this->_rxHead = this->_rxTail = 0;
@@ -389,6 +460,10 @@ void Adafruit_Microbit_BLESerial::end() {
   BLEPeripheral::disconnect();
 }
 
+/*!
+ *  @brief Check how many bytes are available to read over Nordic UART
+ *  @returns Bytes available to read
+ */
 int Adafruit_Microbit_BLESerial::available(void) {
   BLEPeripheral::poll();
   int retval = (this->_rxHead - this->_rxTail + sizeof(this->_rxBuffer)) %
@@ -400,6 +475,10 @@ int Adafruit_Microbit_BLESerial::available(void) {
   return retval;
 }
 
+/*!
+ *    @brief Peek at next byte of UART buffer, without removing it
+ *    @returns Byte read, -1 if no data to read (use available() first!)
+ */
 int Adafruit_Microbit_BLESerial::peek(void) {
   BLEPeripheral::poll();
   if (this->_rxTail == this->_rxHead)
@@ -414,6 +493,10 @@ int Adafruit_Microbit_BLESerial::peek(void) {
   return byte;
 }
 
+/*!
+ *    @brief Read one byte out of UART buffer
+ *    @returns Byte read, -1 if no data to read (use available() first!)
+ */
 int Adafruit_Microbit_BLESerial::read(void) {
   BLEPeripheral::poll();
   if (this->_rxTail == this->_rxHead)
@@ -429,6 +512,9 @@ int Adafruit_Microbit_BLESerial::read(void) {
   return byte;
 }
 
+/*!
+ *    @brief Send any pending data in UART buffer
+ */
 void Adafruit_Microbit_BLESerial::flush(void) {
   if (this->_txCount == 0)
     return;
@@ -441,6 +527,11 @@ void Adafruit_Microbit_BLESerial::flush(void) {
 #endif
 }
 
+/*!
+ *    @brief Write one byte out to UART service
+ *    @param byte Since data byte to write
+ *    @returns 1 on success, 0 on failure
+ */
 size_t Adafruit_Microbit_BLESerial::write(uint8_t byte) {
   BLEPeripheral::poll();
   if (this->_txCharacteristic.subscribed() == false)
@@ -458,6 +549,10 @@ size_t Adafruit_Microbit_BLESerial::write(uint8_t byte) {
   return 1;
 }
 
+/*!
+ *    @brief Test if UART service is connected over BLE
+ *    @returns True if connected
+ */
 Adafruit_Microbit_BLESerial::operator bool() {
   bool retval = BLEPeripheral::connected();
 #ifdef BLE_SERIAL_DEBUG

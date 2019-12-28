@@ -11,6 +11,7 @@
 
 void IRQ_MATRIX_HANDLER(void);
 
+/** Class to create Adafruit_GFX interface for 5x5 matrix of micro:bit */
 class Adafruit_Microbit_Matrix : public Adafruit_GFX {
 public:
   Adafruit_Microbit_Matrix();
@@ -22,10 +23,13 @@ public:
   void scrollText(char *string, uint8_t stepdelay = 150);
   void print(char *string);
   void print(int32_t i);
-  void print(int i) { print((int32_t)i); }
+  void print(int i);
   void print(double f, int precision = 3);
 
-  static const uint8_t EMPTYHEART[5], HEART[5], NO[5], YES[5];
+  static const uint8_t EMPTYHEART[5], ///< an empty heart icon
+      HEART[5],                       ///< full heart icon
+      NO[5],                          ///< X icon
+      YES[5];                         ///< Check icon
 
 private:
   void startTimer();
@@ -33,6 +37,7 @@ private:
   uint8_t matrix_buffer[3][9];
 };
 
+/** Class to use Nordic UART service as a Stream object on micro:bit */
 class Adafruit_Microbit_BLESerial : public BLEPeripheral, public Stream {
 public:
   Adafruit_Microbit_BLESerial(unsigned char req = BLE_DEFAULT_REQ,
@@ -80,10 +85,11 @@ private:
                         BLECharacteristic &rxCharacteristic);
 };
 
+/** Class to create hardware interface to BLE/matrix of micro:bit */
 class Adafruit_Microbit {
 public:
-  Adafruit_Microbit_Matrix matrix;
-  Adafruit_Microbit_BLESerial BTLESerial;
+  Adafruit_Microbit_Matrix matrix;        ///< 5x5 graphical matrix
+  Adafruit_Microbit_BLESerial BTLESerial; ///< Nordic UART service connection
 
   void begin(void);
 
