@@ -1,0 +1,38 @@
+name: Arduino Library CI
+
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+      with:
+         repository: adafruit/ci-arduino
+         path: ci
+
+    - name: pre-install
+      run: bash ci/actions_install.sh
+
+    - name: install other libraries
+      run: |
+        wget https://cdn-learn.adafruit.com/assets/assets/000/046/217/original/MMA8653.zip
+        unzip MMA8653.zip
+        mv MMA8653 /home/runner/Arduino/libraries
+
+    - name: test platforms
+      run: python3 ci/build_platform.py microbit
+
+    - name: clang
+      run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -r . 
+
+    - name: doxygen
+      env:
+        GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
+        PRETTYNAME : "Adafruit micro:bit Library"
+      run: bash ci/doxy_gen_and_deploy.sh
