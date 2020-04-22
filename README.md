@@ -1,4 +1,4 @@
-# Adafruit MicroBit library ![Build Status](https://github.com/adafruit/Adafruit_Microbit/workflows/Arduino%20Library%20CI/badge.svg)
+# Adafruit MicroBit library [![Build Status](https://github.com/adafruit/Adafruit_Microbit/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_Microbit/actions)[![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](http://adafruit.github.io/Adafruit_Microbit/html/index.html)
 
 
 Wrapper code and examples for using microbit with arduino IDE
