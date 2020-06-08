@@ -1,3 +1,7 @@
+/*!
+ * @file Adafruit_Microbit.h
+ */
+
 #ifndef _ADAFRUIT_MICROBIT_H_
 #define _ADAFRUIT_MICROBIT_H_
 
@@ -6,10 +10,10 @@
 #include <BLEPeripheral.h>
 #include <Fonts/TomThumb.h>
 
-#define LED_ON 1
-#define LED_OFF 0
+#define LED_ON 1  //!< Used to make turning the LED on more readable
+#define LED_OFF 0 //!< Used to make turning the LED off more readable
 
-void IRQ_MATRIX_HANDLER(void);
+void IRQ_MATRIX_HANDLER(void); //!< Matrix interrupt request handler
 
 /** Class to create Adafruit_GFX interface for 5x5 matrix of micro:bit */
 class Adafruit_Microbit_Matrix : public Adafruit_GFX {

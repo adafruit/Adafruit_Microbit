@@ -1,18 +1,28 @@
-
-
-/**
+/*!
+ * @file Adafruit_Microbit.cpp
+ *
+ * @mainpage Adafruit Microbit Library
+ *
+ * @section intro_sec Introduction
+ *
+ * Wrapper code and examples for using microbit with arduino IDE
+ *
  *  Includes ftoa() code from stm32tpl --  STM32 C++ Template Peripheral Library
  *
- *  Copyright (c) 2009-2014 Anton B. Gusev aka AHTOXA
+ * @section copyright Copyright
  *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ * Copyright (c) 2009-2014 Anton B. Gusev aka AHTOXA
+ *
+ * @section license License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
+ *  deal in the Software without restriction, including without limitation the
+ *  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ *  sell copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
  *
- *  The above copyright notice and this permission notice shall be included in
+ * The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
  *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -29,20 +39,29 @@
 #include "nrf_soc.h"
 #include <Adafruit_Microbit.h>
 
-#define MATRIX_ROWS 3
-#define MATRIX_COLS 9
-uint8_t rowpins[MATRIX_ROWS] = {26, 27, 28};
-uint8_t colpins[MATRIX_COLS] = {3, 4, 10, 23, 24, 25, 9, 7, 6};
+#define MATRIX_ROWS 3 //!< Number of rows on the microbit LED matrix
+#define MATRIX_COLS 9 //!< Number of columns on the microbit LED matrix
+uint8_t rowpins[MATRIX_ROWS] = {
+    26, 27, 28}; //!< Pin numbers for the rows on the microbit LED matrix
+uint8_t colpins[MATRIX_COLS] = {
+    3,  4, 10, 23, 24,
+    25, 9, 7,  6}; //!< Pin numbers for the columns on the microbit LED matrix
 
-uint8_t pixel_to_row[25] = {1, 2, 1, 2, 1, 3, 3, 3, 3, 3, 2, 1, 2,
-                            3, 2, 1, 1, 1, 1, 1, 3, 2, 3, 2, 3};
+uint8_t pixel_to_row[25] = {
+    1, 2, 1, 2, 1, 3, 3, 3, 3, 3, 2, 1, 2,
+    3, 2, 1, 1, 1, 1, 1, 3, 2, 3, 2, 3}; //!< Defines what row each pixel is in
 
-uint8_t pixel_to_col[25] = {1, 4, 2, 5, 3, 4, 5, 6, 7, 8, 2, 9, 3,
-                            9, 1, 8, 7, 6, 5, 4, 3, 7, 1, 6, 2};
+uint8_t pixel_to_col[25] = {
+    1, 4, 2, 5, 3, 4, 5, 6, 7, 8, 2, 9, 3,
+    9, 1, 8, 7, 6, 5, 4, 3, 7, 1, 6, 2}; //!< Defines what column each pixel is
+                                         //!< in
 
-volatile uint8_t currentRow = 0;
+volatile uint8_t currentRow =
+    0; //!< Iterator that is used to write to the desired row
 
-Adafruit_Microbit_Matrix *handle = NULL;
+Adafruit_Microbit_Matrix *handle =
+    NULL; //!< Microbit LED matrix handle, basically an abstraction of the
+          //!< matrix itself to make using it easier.
 
 /** TIMTER2 peripheral interrupt handler. This interrupt handler is called
  * whenever there it a TIMER2 interrupt Don't mess with this line. really.
@@ -245,7 +264,8 @@ void Adafruit_Microbit_Matrix::print(int32_t i) {
  */
 void Adafruit_Microbit_Matrix::print(int i) { print((int32_t)i); }
 
-#define MAX_PRECISION (10)
+#define MAX_PRECISION                                                          \
+  (10) //!< Max floating point precision, default is 10, or 5X10^-11
 static const double rounders[MAX_PRECISION + 1] = {
     0.5,          // 0
     0.05,         // 1
@@ -583,6 +603,9 @@ void Adafruit_Microbit_BLESerial::_received(
 
 /*************************************************************************************************/
 
+/*!
+ * @brief Preset smile image for LED matrix
+ */
 const uint8_t MICROBIT_SMILE[5] = {B00000000, B01010000, B00000000, B10001000,
                                    B01110000};
 
