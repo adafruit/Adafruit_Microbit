@@ -7,8 +7,12 @@
 
 #include <Adafruit_GFX.h>
 #include <Arduino.h>
-#include <BLEPeripheral.h>
 #include <Fonts/TomThumb.h>
+
+#if defined(S110) || defined(S130)
+#define SD_SELECTED
+#include <BLEPeripheral.h>
+#endif
 
 #define LED_ON 1  //!< Used to make turning the LED on more readable
 #define LED_OFF 0 //!< Used to make turning the LED off more readable
@@ -37,10 +41,14 @@ public:
 
 private:
   void startTimer();
-
+#if defined(NRF51)
   uint8_t matrix_buffer[3][9];
+#elif defined(NRF52833_XXAA)
+  uint8_t matrix_buffer[5][5];
+#endif
 };
 
+#ifdef SD_SELECTED
 /** Class to use Nordic UART service as a Stream object on micro:bit */
 class Adafruit_Microbit_BLESerial : public BLEPeripheral, public Stream {
 public:
@@ -88,15 +96,17 @@ private:
   static void _received(BLECentral & /*central*/,
                         BLECharacteristic &rxCharacteristic);
 };
+#endif
 
 /** Class to create hardware interface to BLE/matrix of micro:bit */
 class Adafruit_Microbit {
 public:
-  Adafruit_Microbit_Matrix matrix;        ///< 5x5 graphical matrix
+  Adafruit_Microbit_Matrix matrix; ///< 5x5 graphical matrix
+#ifdef SD_SELECTED
   Adafruit_Microbit_BLESerial BTLESerial; ///< Nordic UART service connection
+  uint8_t getDieTemp(void);
+#endif
 
   void begin(void);
-
-  uint8_t getDieTemp(void);
 };
 #endif
