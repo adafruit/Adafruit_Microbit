@@ -606,8 +606,9 @@ void Adafruit_Microbit_BLESerial::_received(
 /*!
  * @brief Preset smile image for LED matrix
  */
-const uint8_t MICROBIT_SMILE[5] = {B00000000, B01010000, B00000000, B10001000,
-                                   B01110000};
+const uint8_t Adafruit_Microbit_Matrix::MICROBIT_SMILE[5] = {
+    B00000, B01010, B00000, B10001, B01110,
+};
 
 const uint8_t Adafruit_Microbit_Matrix::EMPTYHEART[5] = {
     B01010, B10101, B10001, B01010, B00100,
