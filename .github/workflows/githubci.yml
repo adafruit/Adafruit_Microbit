@@ -27,7 +27,7 @@ jobs:
         git clone --quiet https://github.com/sparkfun/SparkFun_MAG3110_Breakout_Board_Arduino_Library.git /home/runner/Arduino/libraries/SparkFun_MAG3110_Breakout_Board_Arduino_Library
 
     - name: test platforms
-      run: python3 ci/build_platform.py microbit
+      run: python3 ci/build_platform.py --no_warn microbit
 
     - name: clang
       run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -r . 
