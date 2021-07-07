@@ -36,9 +36,13 @@
  *
  */
 
-#include "nrf_soc.h"
 #include <Adafruit_Microbit.h>
 
+#ifdef SD_SELECTED
+#include "nrf_soc.h"
+#endif
+
+#if defined(NRF51)
 #define MATRIX_ROWS 3 //!< Number of rows on the microbit LED matrix
 #define MATRIX_COLS 9 //!< Number of columns on the microbit LED matrix
 uint8_t rowpins[MATRIX_ROWS] = {
@@ -55,6 +59,23 @@ uint8_t pixel_to_col[25] = {
     1, 4, 2, 5, 3, 4, 5, 6, 7, 8, 2, 9, 3,
     9, 1, 8, 7, 6, 5, 4, 3, 7, 1, 6, 2}; //!< Defines what column each pixel is
                                          //!< in
+#elif defined(NRF52833_XXAA)
+#define MATRIX_ROWS 5 //!< Number of rows on the microbit LED matrix
+#define MATRIX_COLS 5 //!< Number of columns on the microbit LED matrix
+uint8_t rowpins[MATRIX_ROWS] = {
+    21, 22, 23, 24,
+    25}; //!< Pin numbers for the rows on the microbit LED matrix
+uint8_t colpins[MATRIX_COLS] = {
+    4, 7, 3, 6, 10}; //!< Pin numbers for the columns on the microbit LED matrix
+
+uint8_t pixel_to_row[25] = {
+    1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3,
+    3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5}; //!< Defines what row each pixel is in
+
+uint8_t pixel_to_col[25] = {
+    1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5,
+}; //!< Defines what column each pixel is in
+#endif
 
 volatile uint8_t currentRow =
     0; //!< Iterator that is used to write to the desired row
@@ -400,6 +421,7 @@ void Adafruit_Microbit_Matrix::scrollText(char *string, uint8_t stepdelay) {
  */
 void Adafruit_Microbit::begin(void) { matrix.begin(); }
 
+#ifdef SD_SELECTED
 /*!
  *    @brief  Request the temperature from the Soft Device
  *    @returns Temperature in Celsius
@@ -418,9 +440,10 @@ uint8_t Adafruit_Microbit::getDieTemp(void) {
 
   return temp / 4;
 }
+#endif
 
 /*********************************************************************/
-
+#ifdef SD_SELECTED
 Adafruit_Microbit_BLESerial *Adafruit_Microbit_BLESerial::_instance = NULL;
 
 /*!
@@ -600,7 +623,7 @@ void Adafruit_Microbit_BLESerial::_received(
   Adafruit_Microbit_BLESerial::_instance->_received(
       rxCharacteristic.value(), rxCharacteristic.valueLength());
 }
-
+#endif
 /*************************************************************************************************/
 
 /*!
