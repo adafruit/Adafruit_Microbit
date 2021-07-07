@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['getdietemp',['getDieTemp',['../class_adafruit___microbit.html#af512e56acd966c2b5da1ff7d4db31799',1,'Adafruit_Microbit']]]
+  ['rowhandler',['rowHandler',['../class_adafruit___microbit___matrix.html#a15f6c2249faa02aac8d8f4ce1b740c9b',1,'Adafruit_Microbit_Matrix']]]
 ];

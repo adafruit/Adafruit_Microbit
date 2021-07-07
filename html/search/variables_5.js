@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['no',['NO',['../class_adafruit___microbit___matrix.html#aef190bb69927fb18053fb5adc13c7677',1,'Adafruit_Microbit_Matrix']]]
+  ['yes',['YES',['../class_adafruit___microbit___matrix.html#af971ccf8a4872c5016e380f6578cfeed',1,'Adafruit_Microbit_Matrix']]]
 ];

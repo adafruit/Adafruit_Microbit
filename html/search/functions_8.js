@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['operator_20bool',['operator bool',['../class_adafruit___microbit___b_l_e_serial.html#a68e5bbfe4efbec39bb99c15f73d73dd2',1,'Adafruit_Microbit_BLESerial']]]
+  ['timer2_5firqhandler',['TIMER2_IRQHandler',['../_adafruit___microbit_8cpp.html#a12c8b827e5eab9d3f93d56f858e735a3',1,'Adafruit_Microbit.cpp']]]
 ];

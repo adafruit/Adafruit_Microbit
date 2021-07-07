@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['irq_5fmatrix_5fhandler',['IRQ_MATRIX_HANDLER',['../_adafruit___microbit_8cpp.html#a4a074ff5058f22ac463470c9798a8f55',1,'IRQ_MATRIX_HANDLER(void):&#160;Adafruit_Microbit.cpp'],['../_adafruit___microbit_8h.html#a4a074ff5058f22ac463470c9798a8f55',1,'IRQ_MATRIX_HANDLER(void):&#160;Adafruit_Microbit.cpp']]]
+  ['scrolltext',['scrollText',['../class_adafruit___microbit___matrix.html#a63ba7aaba4fa2c0baf42b718d77c8abd',1,'Adafruit_Microbit_Matrix']]],
+  ['show',['show',['../class_adafruit___microbit___matrix.html#a6f65bb4959b862d0b5c1d15b794c3a3f',1,'Adafruit_Microbit_Matrix']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['clear',['clear',['../class_adafruit___microbit___matrix.html#ad6053d168f52ac907a6a64b50a785a01',1,'Adafruit_Microbit_Matrix']]]
+  ['drawpixel',['drawPixel',['../class_adafruit___microbit___matrix.html#a51db29cf0cf6270f4c7035732ea72af8',1,'Adafruit_Microbit_Matrix']]]
 ];
