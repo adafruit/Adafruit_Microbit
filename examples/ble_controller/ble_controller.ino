@@ -24,8 +24,8 @@ void setup() {
   Serial.println("Controller demo ready!");
 
   // custom services and characteristics can be added as well
-  microbit.BTLESerial.begin();
   microbit.BTLESerial.setLocalName("microbit");
+  microbit.BTLESerial.begin();
 
   // Start LED matrix driver after radio (required)
   microbit.begin();

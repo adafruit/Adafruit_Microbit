@@ -10,8 +10,8 @@ void setup()
   
   Serial.println("nRF5x Die Temperature Plotting");
 
-  microbit.BTLESerial.begin();
   microbit.BTLESerial.setLocalName("microbit");
+  microbit.BTLESerial.begin();
 
   // Start LED matrix driver after radio (required)
   microbit.begin();
