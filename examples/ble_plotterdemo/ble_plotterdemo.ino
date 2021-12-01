@@ -19,8 +19,8 @@ void setup() {
   accel.begin(false, 2); // 8-bit mode, 2g range
     
   // custom services and characteristics can be added as well
-  microbit.BTLESerial.begin();
   microbit.BTLESerial.setLocalName("microbit");
+  microbit.BTLESerial.begin();
 
   // Start LED matrix driver after radio (required)
   microbit.begin();
