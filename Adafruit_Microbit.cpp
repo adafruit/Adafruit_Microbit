@@ -432,9 +432,6 @@ uint8_t Adafruit_Microbit::getDieTemp(void) {
 
   err_code = sd_temp_get(&temp);
   if (err_code) {
-    Serial.print("Temperature Error Code: 0x");
-    Serial.print(err_code, HEX);
-    Serial.println("");
     return 0;
   }
 
